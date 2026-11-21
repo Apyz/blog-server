@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <title>管理登录 - {{.SiteName}}</title>
+    <script>
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-100 text-gray-800 dark:bg-[#0f172a] dark:text-gray-100 min-h-screen flex items-center justify-center p-4">
+
+    <div class="max-w-md w-full bg-white dark:bg-[#1e293b] rounded-3xl border border-gray-200/80 dark:border-gray-800 shadow-xl p-8 sm:p-10 space-y-6">
+        <!-- Logo & Title -->
+        <div class="text-center space-y-2">
+            <div class="inline-flex w-12 h-12 rounded-2xl bg-brand-600 text-white font-bold text-2xl items-center justify-center shadow-md shadow-brand-500/20">
+                B
+            </div>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">后台管理登录</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400">请输入管理员账号与密码</p>
+        </div>
+
+        {{if .Error}}
+        <!-- Error Alert -->
+        <div class="p-3.5 rounded-xl bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-900/60 text-red-600 dark:text-red-400 text-sm flex items-center gap-2">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>{{.Error}}</span>
+        </div>
+        {{end}}
+
+        <!-- Login Form -->
+        <form method="POST" action="/admin/login" class="space-y-4">
+            <div>
+                <label for="username" class="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1.5">
+                    用户名
+                </label>
+                <input type="text" id="username" name="username" required autocomplete="username" autofocus
+                       class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent text-sm transition-all"
+                       placeholder="admin">
+            </div>
+
+            <div>
+                <label for="password" class="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1.5">
+                    密码
+                </label>
+                <input type="password" id="password" name="password" required autocomplete="current-password"
+                       class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent text-sm transition-all"
+                       placeholder="••••••••">
+            </div>
+
+            <button type="submit" class="w-full mt-2 py-3 px-4 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm transition-colors shadow-md shadow-brand-500/20 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900">
+                登 录
+            </button>
+        </form>
+
+        <div class="text-center pt-2">
+            <a href="/" class="text-xs text-gray-500 hover:text-brand-600 dark:hover:text-brand-400 transition-colors inline-flex items-center gap-1">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                <span>返回博客首页</span>
+            </a>
+        </div>
+    </div>
+
+</body>
+</html>

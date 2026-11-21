@@ -1,0 +1,239 @@
+{{define "content"}}
+{{if .Saved}}
+<div class="flex items-center gap-2 px-4 py-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-900/60 text-emerald-700 dark:text-emerald-400 text-sm">
+    <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+    </svg>
+    <span>文章已保存成功！</span>
+</div>
+{{end}}
+
+<form method="POST" action="{{if .IsNew}}/admin/posts{{else}}/admin/posts/{{.Post.ID}}{{end}}" class="space-y-6">
+
+    <!-- Top Navigation / Actions Bar -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-[#1e293b] p-4 sm:p-5 rounded-2xl border border-gray-200/80 dark:border-gray-800 shadow-sm">
+        <div class="flex items-center gap-3">
+            <a href="/admin" class="p-2 rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" title="返回仪表盘">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+            </a>
+            <div>
+                <h1 class="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
+                    {{if .IsNew}}新建文章{{else}}编辑文章: {{.Post.Title}}{{end}}
+                </h1>
+                <p class="text-xs text-gray-400">支持原生 GitHub Flavored Markdown 语法与实时预览</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <!-- Publish Toggle -->
+            <label class="inline-flex items-center gap-2 cursor-pointer select-none">
+                <input type="checkbox" name="published" value="true" class="sr-only peer" {{if or .IsNew .Post.Published}}checked{{end}}>
+                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-emerald-500 relative"></div>
+                <span class="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">立即发布</span>
+            </label>
+
+            <!-- Save Button -->
+            <button type="submit" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-medium text-xs sm:text-sm transition-colors shadow-md shadow-brand-500/20">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                </svg>
+                <span>保存文章</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Metadata Section -->
+    <div class="bg-white dark:bg-[#1e293b] p-5 sm:p-6 rounded-2xl border border-gray-200/80 dark:border-gray-800 shadow-sm space-y-4">
+        <!-- Title input -->
+        <div>
+            <label for="title" class="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1">
+                文章标题 <span class="text-red-500">*</span>
+            </label>
+            <input type="text" id="title" name="title" required value="{{if not .IsNew}}{{.Post.Title}}{{end}}" placeholder="例如：使用 Go 语言构建轻量现代个人博客系统"
+                   class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white font-bold text-base sm:text-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all">
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Slug input -->
+            <div>
+                <label for="slug" class="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1">
+                    URL Slug（路径标识符）
+                </label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-xs text-gray-400 font-mono">
+                        /post/
+                    </span>
+                    <input type="text" id="slug" name="slug" value="{{if not .IsNew}}{{.Post.Slug}}{{end}}" placeholder="留空自动根据标题生成"
+                           class="w-full pl-16 pr-4 py-2 text-sm rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all">
+                </div>
+            </div>
+
+            <!-- Tags input -->
+            <div>
+                <label for="tags" class="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1">
+                    文章标签（逗号分隔）
+                </label>
+                <input type="text" id="tags" name="tags" value="{{if not .IsNew}}{{.TagString}}{{end}}" placeholder="Go, 架构设计, PostgreSQL"
+                       class="w-full px-4 py-2 text-sm rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all">
+            </div>
+        </div>
+
+        <!-- Summary input -->
+        <div>
+            <label for="summary" class="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1">
+                文章摘要 / 导语（可选）
+            </label>
+            <textarea id="summary" name="summary" rows="2" placeholder="留空时，博客列表页将自动截取正文前 120 字作为摘要展示..."
+                      class="w-full px-4 py-2 text-sm rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all resize-y">{{if not .IsNew}}{{.Post.Summary}}{{end}}</textarea>
+        </div>
+    </div>
+
+    <!-- Dual-Pane Markdown Editor -->
+    <div class="bg-white dark:bg-[#1e293b] rounded-2xl border border-gray-200/80 dark:border-gray-800 shadow-sm overflow-hidden flex flex-col min-h-[600px]">
+
+        <!-- Toolbar & View Switcher -->
+        <div class="p-3 bg-gray-50 dark:bg-gray-800/80 border-b border-gray-200/80 dark:border-gray-800 flex items-center justify-between flex-wrap gap-2 text-xs">
+            <!-- Formatting Buttons -->
+            <div class="flex items-center gap-1 flex-wrap">
+                <button type="button" onclick="insertSyntax('**', '**')" class="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 font-bold" title="粗体 (Ctrl+B)">B</button>
+                <button type="button" onclick="insertSyntax('*', '*')" class="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 italic" title="斜体 (Ctrl+I)">I</button>
+                <button type="button" onclick="insertSyntax('~~', '~~')" class="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 line-through" title="删除线">S</button>
+                <div class="h-4 w-px bg-gray-300 dark:bg-gray-700 mx-1"></div>
+                <button type="button" onclick="insertPrefix('## ')" class="px-2 py-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 font-semibold" title="二级标题">H2</button>
+                <button type="button" onclick="insertPrefix('### ')" class="px-2 py-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 font-semibold" title="三级标题">H3</button>
+                <div class="h-4 w-px bg-gray-300 dark:bg-gray-700 mx-1"></div>
+                <button type="button" onclick="insertPrefix('> ')" class="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700" title="引用">“ ”</button>
+                <button type="button" onclick="insertSyntax('`', '`')" class="px-1.5 py-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 font-mono" title="行内代码">&lt;/&gt;</button>
+                <button type="button" onclick="insertSyntax('```go\n', '\n```')" class="px-1.5 py-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 font-mono" title="代码块">```{ }</button>
+                <button type="button" onclick="insertSyntax('[链接文本](', ')')" class="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700" title="超链接">🔗</button>
+                <button type="button" onclick="insertTable()" class="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700" title="表格">⊞ 表格</button>
+            </div>
+
+            <!-- View Mode Switcher -->
+            <div class="flex items-center bg-gray-200 dark:bg-gray-700/60 p-0.5 rounded-lg">
+                <button type="button" id="btn-split" onclick="setViewMode('split')" class="px-2.5 py-1 rounded-md font-medium text-brand-600 dark:text-brand-400 bg-white dark:bg-gray-800 shadow-sm transition-all">
+                    双栏对照
+                </button>
+                <button type="button" id="btn-write" onclick="setViewMode('write')" class="px-2.5 py-1 rounded-md font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all">
+                    仅编辑
+                </button>
+                <button type="button" id="btn-preview" onclick="setViewMode('preview')" class="px-2.5 py-1 rounded-md font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all">
+                    仅预览
+                </button>
+            </div>
+        </div>
+
+        <!-- Split Panes Container -->
+        <div class="grid grid-cols-1 md:grid-cols-2 flex-grow divide-y md:divide-y-0 md:divide-x divide-gray-200/80 dark:divide-gray-800">
+            <!-- Left Pane: Editor Textarea -->
+            <div id="pane-write" class="flex flex-col h-full min-h-[500px]">
+                <textarea id="markdown-input" name="content_md" required
+                          placeholder="# 开始用 Markdown 撰写您的文章..."
+                          class="w-full flex-grow p-5 font-mono text-sm leading-relaxed bg-transparent text-gray-900 dark:text-gray-100 focus:outline-none resize-none selection:bg-brand-500 selection:text-white">{{if not .IsNew}}{{.Post.ContentMD}}{{end}}</textarea>
+            </div>
+
+            <!-- Right Pane: Live HTML Preview -->
+            <div id="pane-preview" class="p-5 overflow-y-auto max-h-[750px] bg-gray-50/50 dark:bg-[#0f172a]/50">
+                <div id="preview-output" class="prose prose-indigo dark:prose-invert max-w-none text-sm sm:text-base">
+                    <!-- Real-time marked.js output renders here -->
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</form>
+
+<script>
+    const textarea = document.getElementById('markdown-input');
+    const preview = document.getElementById('preview-output');
+    const paneWrite = document.getElementById('pane-write');
+    const panePreview = document.getElementById('pane-preview');
+    const btnSplit = document.getElementById('btn-split');
+    const btnWrite = document.getElementById('btn-write');
+    const btnPreview = document.getElementById('btn-preview');
+
+    // Configure marked.js
+    if (window.marked) {
+        marked.setOptions({
+            gfm: true,
+            breaks: true,
+        });
+    }
+
+    function renderPreview() {
+        if (!window.marked) return;
+        const text = textarea.value;
+        if (!text.trim()) {
+            preview.innerHTML = '<p class="text-gray-400 italic">实时预览区域（在左侧输入 Markdown 即时呈现）...</p>';
+            return;
+        }
+        preview.innerHTML = marked.parse(text);
+
+        // Run Highlight.js on rendered preview blocks
+        preview.querySelectorAll('pre code').forEach((block) => {
+            hljs.highlightElement(block);
+        });
+    }
+
+    // Live update on input
+    textarea.addEventListener('input', renderPreview);
+    // Initial render
+    renderPreview();
+
+    // Editor formatting helpers
+    function insertSyntax(prefix, suffix) {
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const sel = textarea.value.substring(start, end) || '文本';
+        const replace = prefix + sel + suffix;
+        textarea.setRangeText(replace, start, end, 'select');
+        textarea.focus();
+        renderPreview();
+    }
+
+    function insertPrefix(prefix) {
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const sel = textarea.value.substring(start, end) || '标题';
+        const replace = prefix + sel;
+        textarea.setRangeText(replace, start, end, 'end');
+        textarea.focus();
+        renderPreview();
+    }
+
+    function insertTable() {
+        const table = "\n| 列1 | 列2 | 列3 |\n| :--- | :---: | ---: |\n| 文本 | 居中 | 居右 |\n| 内容 | 内容 | 内容 |\n";
+        insertSyntax(table, "");
+    }
+
+    // View Mode Switcher
+    function setViewMode(mode) {
+        const activeClass = "px-2.5 py-1 rounded-md font-medium text-brand-600 dark:text-brand-400 bg-white dark:bg-gray-800 shadow-sm transition-all";
+        const inactiveClass = "px-2.5 py-1 rounded-md font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all";
+
+        btnSplit.className = inactiveClass;
+        btnWrite.className = inactiveClass;
+        btnPreview.className = inactiveClass;
+
+        if (mode === 'split') {
+            paneWrite.classList.remove('hidden');
+            panePreview.classList.remove('hidden');
+            paneWrite.parentElement.classList.add('md:grid-cols-2');
+            btnSplit.className = activeClass;
+        } else if (mode === 'write') {
+            paneWrite.classList.remove('hidden');
+            panePreview.classList.add('hidden');
+            paneWrite.parentElement.classList.remove('md:grid-cols-2');
+            btnWrite.className = activeClass;
+        } else if (mode === 'preview') {
+            paneWrite.classList.add('hidden');
+            panePreview.classList.remove('hidden');
+            paneWrite.parentElement.classList.remove('md:grid-cols-2');
+            btnPreview.className = activeClass;
+        }
+    }
+</script>
+{{end}}

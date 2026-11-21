@@ -1,0 +1,171 @@
+{{define "content"}}
+<div class="space-y-10">
+
+    <!-- Hero / Introduction Section -->
+    <section class="space-y-4 pt-2 pb-4">
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">
+            Hi, 欢迎来到我的个人博客 👋
+        </h1>
+        <p class="text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-2xl leading-relaxed">
+            记录编程探索、系统架构设计与生活随笔。代码如诗，追求极简与可靠。
+        </p>
+    </section>
+
+    <!-- Search & Filter Controls -->
+    <section class="bg-white dark:bg-[#1e293b] p-4 sm:p-5 rounded-2xl border border-gray-200/80 dark:border-gray-800 shadow-sm space-y-4">
+        <!-- Search Input Form -->
+        <form method="GET" action="/" class="flex gap-2">
+            {{if .CurrentTag}}
+            <input type="hidden" name="tag" value="{{.CurrentTag}}">
+            {{end}}
+            <div class="relative flex-grow">
+                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </span>
+                <input type="text" name="q" value="{{.SearchQuery}}" placeholder="搜索文章标题、正文关键词..." class="w-full pl-10 pr-4 py-2 text-sm rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all">
+            </div>
+            <button type="submit" class="px-4 py-2 text-sm font-medium rounded-xl bg-brand-600 hover:bg-brand-700 text-white transition-colors shadow-sm shadow-brand-500/20">
+                搜索
+            </button>
+            {{if or .SearchQuery .CurrentTag}}
+            <a href="/" class="px-3 py-2 text-sm font-medium rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors flex items-center gap-1" title="清除所有筛选">
+                重置
+            </a>
+            {{end}}
+        </form>
+
+        <!-- Tags Filter -->
+        {{if .Tags}}
+        <div class="flex items-center gap-2 flex-wrap pt-1 text-xs">
+            <span class="text-gray-400 dark:text-gray-500 font-medium">标签筛选:</span>
+            <a href="/{{if .SearchQuery}}?q={{urlq .SearchQuery}}{{end}}" class="px-2.5 py-1 rounded-lg font-medium transition-all {{if eq .CurrentTag ""}}bg-brand-600 text-white shadow-sm shadow-brand-500/20{{else}}bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700{{end}}">
+                全部
+            </a>
+            {{range .Tags}}
+            <a href="/?tag={{urlq .}}{{if $.SearchQuery}}&q={{urlq $.SearchQuery}}{{end}}" class="px-2.5 py-1 rounded-lg font-medium transition-all {{if eq $.CurrentTag .}}bg-brand-600 text-white shadow-sm shadow-brand-500/20{{else}}bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700{{end}}">
+                #{{.}}
+            </a>
+            {{end}}
+        </div>
+        {{end}}
+    </section>
+
+    <!-- Articles List -->
+    <section class="space-y-6">
+        {{if .Posts}}
+            {{range .Posts}}
+            <article class="group bg-white dark:bg-[#1e293b] p-6 sm:p-7 rounded-2xl border border-gray-200/80 dark:border-gray-800 shadow-sm hover:shadow-md hover:border-brand-500/40 dark:hover:border-brand-500/40 transition-all duration-200 flex flex-col justify-between">
+                <div>
+                    <!-- Post Meta -->
+                    <div class="flex items-center gap-3 text-xs text-gray-400 dark:text-gray-500 mb-2.5 flex-wrap">
+                        <time datetime="{{.FormattedCreatedAt}}" class="flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            {{.FormattedCreatedAt}}
+                        </time>
+                        <span>•</span>
+                        <span class="flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            阅读 {{.ReadingTimeMinutes}} 分钟
+                        </span>
+                        {{if .Tags}}
+                        <span>•</span>
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            {{range .Tags}}
+                            <span class="text-brand-600 dark:text-brand-400 font-medium bg-brand-50 dark:bg-brand-950/60 px-2 py-0.5 rounded-md">
+                                #{{.}}
+                            </span>
+                            {{end}}
+                        </div>
+                        {{end}}
+                    </div>
+
+                    <!-- Post Title -->
+                    <h2 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors leading-snug">
+                        <a href="/post/{{.Slug}}">
+                            {{.Title}}
+                        </a>
+                    </h2>
+
+                    <!-- Post Excerpt -->
+                    <p class="mt-3 text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed line-clamp-3">
+                        {{.Excerpt}}
+                    </p>
+                </div>
+
+                <!-- Read More Link -->
+                <div class="mt-5 pt-4 border-t border-gray-100 dark:border-gray-800/80 flex items-center justify-between">
+                    <a href="/post/{{.Slug}}" class="inline-flex items-center gap-1 text-sm font-semibold text-brand-600 dark:text-brand-400 group-hover:translate-x-1 transition-transform">
+                        <span>阅读全文</span>
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                        </svg>
+                    </a>
+                </div>
+            </article>
+            {{end}}
+        {{else}}
+            <!-- Empty state -->
+            <div class="text-center py-16 px-4 bg-white dark:bg-[#1e293b] rounded-2xl border border-dashed border-gray-300 dark:border-gray-800">
+                <div class="w-12 h-12 mx-auto rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-400">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <h3 class="mt-4 text-base font-semibold text-gray-900 dark:text-white">未找到匹配的文章</h3>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">尝试使用不同的关键词搜索，或清除当前筛选标签。</p>
+                <div class="mt-6">
+                    <a href="/" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-xl text-white bg-brand-600 hover:bg-brand-700 transition-colors shadow-sm">
+                        返回全部文章
+                    </a>
+                </div>
+            </div>
+        {{end}}
+    </section>
+
+    <!-- Pagination Controls -->
+    {{if gt .TotalPages 1}}
+    <nav class="flex items-center justify-between border-t border-gray-200 dark:border-gray-800 pt-6">
+        <div>
+            {{if gt .CurrentPage 1}}
+            <a href="/?page={{sub .CurrentPage 1}}{{if .SearchQuery}}&q={{urlq .SearchQuery}}{{end}}{{if .CurrentTag}}&tag={{urlq .CurrentTag}}{{end}}" class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-xl border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+                上一页
+            </a>
+            {{else}}
+            <span class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-xl border border-gray-200 dark:border-gray-800 text-gray-300 dark:text-gray-600 cursor-not-allowed">
+                上一页
+            </span>
+            {{end}}
+        </div>
+
+        <div class="text-sm text-gray-500 dark:text-gray-400 font-medium">
+            第 {{.CurrentPage}} / {{.TotalPages}} 页 (共 {{.TotalPosts}} 篇)
+        </div>
+
+        <div>
+            {{if lt .CurrentPage .TotalPages}}
+            <a href="/?page={{add .CurrentPage 1}}{{if .SearchQuery}}&q={{urlq .SearchQuery}}{{end}}{{if .CurrentTag}}&tag={{urlq .CurrentTag}}{{end}}" class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-xl border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                下一页
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+            </a>
+            {{else}}
+            <span class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-xl border border-gray-200 dark:border-gray-800 text-gray-300 dark:text-gray-600 cursor-not-allowed">
+                下一页
+            </span>
+            {{end}}
+        </div>
+    </nav>
+    {{end}}
+
+</div>
+{{end}}

@@ -1,0 +1,15 @@
+# 编译产物
+myblog
+myblog.exe
+*.exe
+*.test
+*.out
+
+# 环境配置（含密钥，切勿提交）
+.env
+
+# 编辑器 / 系统
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

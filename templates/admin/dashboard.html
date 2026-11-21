@@ -1,0 +1,211 @@
+{{define "content"}}
+<div class="space-y-6">
+
+    <!-- Top Action & Stats Bar -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-[#1e293b] p-5 sm:p-6 rounded-2xl border border-gray-200/80 dark:border-gray-800 shadow-sm">
+        <div>
+            <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">文章管理仪表盘</h1>
+            <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
+                共 {{.TotalPosts}} 篇文章（{{.PublishedCount}} 篇已发布，{{.DraftCount}} 篇草稿）
+            </p>
+        </div>
+
+        <div class="flex items-center gap-2.5 flex-wrap">
+            <a href="/admin/export" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-xs sm:text-sm font-medium transition-colors shadow-sm">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                <span>备份导出 (.zip)</span>
+            </a>
+
+            <a href="/admin/new" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs sm:text-sm font-medium transition-colors shadow-md shadow-brand-500/20">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                <span>新建文章</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Search / Filter in Admin -->
+    <div class="flex gap-2">
+        <form method="GET" action="/admin" class="flex gap-2 flex-grow max-w-md">
+            <input type="text" name="q" value="{{.SearchQuery}}" placeholder="搜索文章标题、Slug 或正文..."
+                   class="flex-grow px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1e293b] text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent">
+            <button type="submit" class="px-4 py-2 text-sm font-medium rounded-xl bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 transition-colors">
+                搜索
+            </button>
+            {{if .SearchQuery}}
+            <a href="/admin" class="px-3 py-2 text-sm font-medium rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors flex items-center">
+                重置
+            </a>
+            {{end}}
+        </form>
+    </div>
+
+    <!-- Posts Table -->
+    <div class="bg-white dark:bg-[#1e293b] rounded-2xl border border-gray-200/80 dark:border-gray-800 shadow-sm overflow-hidden">
+        {{if .Posts}}
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm text-gray-600 dark:text-gray-300">
+                <thead class="bg-gray-50 dark:bg-gray-800/60 text-xs uppercase tracking-wider text-gray-400 dark:text-gray-500 border-b border-gray-200/80 dark:border-gray-800">
+                    <tr>
+                        <th class="px-6 py-3.5 font-semibold">标题 / Slug</th>
+                        <th class="px-4 py-3.5 font-semibold text-center">状态</th>
+                        <th class="px-4 py-3.5 font-semibold">标签</th>
+                        <th class="px-4 py-3.5 font-semibold">创建时间</th>
+                        <th class="px-6 py-3.5 font-semibold text-right">操作</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200/80 dark:divide-gray-800">
+                    {{range .Posts}}
+                    <tr class="hover:bg-gray-50/80 dark:hover:bg-gray-800/40 transition-colors">
+                        <!-- Title & Slug -->
+                        <td class="px-6 py-4">
+                            <div class="font-semibold text-gray-900 dark:text-white line-clamp-1">
+                                <a href="/admin/edit/{{.ID}}" class="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
+                                    {{.Title}}
+                                </a>
+                            </div>
+                            <div class="text-xs text-gray-400 font-mono mt-0.5">
+                                /post/{{.Slug}}
+                            </div>
+                        </td>
+
+                        <!-- Status Badge -->
+                        <td class="px-4 py-4 text-center">
+                            {{if .Published}}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60">
+                                已发布
+                            </span>
+                            {{else}}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800/60">
+                                草稿
+                            </span>
+                            {{end}}
+                        </td>
+
+                        <!-- Tags -->
+                        <td class="px-4 py-4">
+                            <div class="flex items-center gap-1 flex-wrap">
+                                {{range .Tags}}
+                                <span class="text-xs px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
+                                    {{.}}
+                                </span>
+                                {{else}}
+                                <span class="text-xs text-gray-400">-</span>
+                                {{end}}
+                            </div>
+                        </td>
+
+                        <!-- Date -->
+                        <td class="px-4 py-4 text-xs text-gray-400 whitespace-nowrap">
+                            {{.FormattedCreatedAt}}
+                        </td>
+
+                        <!-- Actions -->
+                        <td class="px-6 py-4 text-right whitespace-nowrap">
+                            <div class="flex items-center justify-end gap-2 text-xs">
+                                {{if .Published}}
+                                <a href="/post/{{.Slug}}" target="_blank" class="px-2.5 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" title="前台查看">
+                                    查看
+                                </a>
+                                {{end}}
+
+                                <a href="/admin/edit/{{.ID}}" class="px-2.5 py-1.5 rounded-lg bg-brand-50 dark:bg-brand-950/60 text-brand-600 dark:text-brand-400 hover:bg-brand-100 dark:hover:bg-brand-900/60 transition-colors font-medium">
+                                    编辑
+                                </a>
+
+                                <button type="button" data-id="{{.ID}}" data-title="{{.Title}}" onclick="confirmDelete(this)" class="px-2.5 py-1.5 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors">
+                                    删除
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {{end}}
+                </tbody>
+            </table>
+        </div>
+        {{else}}
+        <div class="text-center py-16 px-4">
+            <svg class="w-12 h-12 mx-auto text-gray-300 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+            </svg>
+            <h3 class="mt-4 text-base font-semibold text-gray-900 dark:text-white">暂无文章记录</h3>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">点击右上角“新建文章”开始撰写您的第一篇博文吧！</p>
+            <div class="mt-6">
+                <a href="/admin/new" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-xl text-white bg-brand-600 hover:bg-brand-700 transition-colors shadow-sm">
+                    新建第一篇文章
+                </a>
+            </div>
+        </div>
+        {{end}}
+    </div>
+
+    <!-- Pagination -->
+    {{if gt .TotalPages 1}}
+    <div class="flex items-center justify-between text-xs sm:text-sm">
+        <div>
+            {{if gt .CurrentPage 1}}
+            <a href="/admin?page={{sub .CurrentPage 1}}{{if .SearchQuery}}&q={{urlq .SearchQuery}}{{end}}" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                上一页
+            </a>
+            {{end}}
+        </div>
+        <div class="text-gray-500 dark:text-gray-400">
+            第 {{.CurrentPage}} / {{.TotalPages}} 页
+        </div>
+        <div>
+            {{if lt .CurrentPage .TotalPages}}
+            <a href="/admin?page={{add .CurrentPage 1}}{{if .SearchQuery}}&q={{urlq .SearchQuery}}{{end}}" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                下一页
+            </a>
+            {{end}}
+        </div>
+    </div>
+    {{end}}
+
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="delete-modal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-[#1e293b] rounded-2xl max-w-sm w-full p-6 space-y-4 shadow-2xl border border-gray-200 dark:border-gray-800">
+        <div class="w-10 h-10 rounded-full bg-red-100 dark:bg-red-950/80 text-red-600 dark:text-red-400 flex items-center justify-center mx-auto">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+        </div>
+        <div class="text-center space-y-1">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white">确认删除文章？</h3>
+            <p class="text-xs text-gray-500 dark:text-gray-400" id="delete-post-title">该操作无法撤销，确定要永久删除吗？</p>
+        </div>
+        <form id="delete-form" method="POST" action="" class="flex gap-3 pt-2">
+            <button type="button" onclick="closeDeleteModal()" class="flex-1 px-4 py-2 text-sm font-medium rounded-xl border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                取消
+            </button>
+            <button type="submit" class="flex-1 px-4 py-2 text-sm font-medium rounded-xl bg-red-600 hover:bg-red-700 text-white transition-colors shadow-sm shadow-red-500/20">
+                确认删除
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function confirmDelete(btn) {
+        const id = btn.dataset.id;
+        const title = btn.dataset.title;
+        document.getElementById('delete-post-title').textContent = `即将删除文章: "${title}"，此操作不可撤销！`;
+        document.getElementById('delete-form').action = `/admin/delete/${id}`;
+        document.getElementById('delete-modal').classList.remove('hidden');
+    }
+
+    function closeDeleteModal() {
+        document.getElementById('delete-modal').classList.add('hidden');
+    }
+
+    // Close on escape key
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeDeleteModal();
+    });
+</script>
+{{end}}
